@@ -1,0 +1,24 @@
+{
+  "name": "6.835-project",
+  "version": "1.0.0",
+  "description": "My 6.835 Final Project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yodahekinsew/6.835-Project.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yodahekinsew/6.835-Project/issues"
+  },
+  "homepage": "https://github.com/yodahekinsew/6.835-Project#readme",
+  "dependencies": {
+    "face-api.js": "^0.22.2",
+    "snoowrap": "^1.21.0"
+  }
+}
