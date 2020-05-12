@@ -1,0 +1,1538 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            @font-face {
+                font-family: 'vag_roundedregular';
+                src: url('vagroundedbt-regular-webfont.woff2') format('woff2'),
+                    url('vagroundedbt-regular-webfont.woff') format('woff');
+                font-weight: normal;
+                font-style: normal;
+
+            }
+            body {
+                font-family: verdana;
+                overflow: hidden;
+                background-color: white;
+                color: black;
+            }
+            #facecam {
+                display: none;
+            }
+            #header {
+                height: 15vh;
+                width: 100vw;
+                padding-top: 2vh;
+                padding-left: 2.5vw;
+                padding-right: 2.5vw;
+                line-height: 10px;
+                position: absolute;
+            }
+            #myCanvas {
+                height: 100vh;
+                position: absolute;
+            }
+            #videoElement {
+                width: 30vw;
+                position: absolute;
+                left: 35vw;
+                top: 35vh;
+            }
+            #reddit-face {
+                position: absolute;
+                top: 15vh;
+                left: 0px;
+                width: 50vw;
+                height: 70vh;
+                overflow: hidden;
+            }
+            #hey-reddit-logo {
+                height: 15vh;
+            }
+            #reddit-face-img {
+                width: 40vmin;
+                margin-left: 10vw;
+                margin-top: 5vw;
+            }
+            #reddit-content {
+                position: absolute;
+                right: 0px;
+                height: 90vh;
+                width: 50vw;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+            #reddit-header {
+                width: 40vw;
+                height: 2vh;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                margin-left: 2.5vw;
+            }
+            #reddit-feed {
+                width: 50vw;
+                margin-top: 1vh;
+                height: 78vh;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+            #reddit-post {
+                margin-bottom: 1vw;
+            }
+            #reddit-item {
+                margin-bottom: .5vw;
+                border: 4px solid #fc4c07;
+            }
+            #reddit-item, #reddit-post {
+                border-radius: 10px;
+                width: 40vw;
+                position: relative;
+                padding: 2vw;
+            }
+            #reddit-item-overlay {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0px;
+                left: 0px;
+            }
+            #reddit-item > .title {
+                position: relative;
+                font-size: 2.5vmin;
+            }
+            #reddit-item > .info {
+                position: absolute;
+                font-size: 1.75vmin;
+            }
+            #reddit-post > .title {
+                color: white;
+                font-size: 3vmin;
+            }
+            #reddit-post > .info {
+                color: white;
+                margin-top: .5vw;
+                font-size: 2vmin;
+            }
+            #reddit-item > .image {
+                width: "35vw";
+                margin-left: "2.5vw";
+            }
+            #speech-result {
+                position: absolute;
+                left: 0px;
+                top: 65vh;
+                height: 40vh;
+                width: 40vw;
+                padding: 2vw;
+                font-size: 40px;
+                font-family: vag_roundedregular;
+            }
+            #speech-result-text {
+                left: 5vw;
+                top: 10vh;
+                position: absolute;
+                font-size: 30px;
+            }
+            #connections {
+                position: absolute;
+                display: flex;
+                flex-direction: row;
+                justify-content: space-around;
+                width: 40vw;
+                height: 5vh;
+                bottom: 0px;
+                right: 0px;
+            }
+            .connection {
+                text-align: center;
+                display: block;
+                width: 10vw;
+                height: 3.5vh;
+                border-radius: 10px; 
+                border: 2px solid #fc4c07;
+                font-size: 15px;
+            }
+            #help-command {
+                position: absolute;
+                bottom: 10px;
+                left: 20px;
+                width: 50vw;
+            }
+            #help-container {
+                position: absolute;
+                width: 80vw;
+                height: 90vh;
+                background-color: black;
+                border-radius: 10px;
+                z-index: 1;
+                margin-top: 5vh;
+                margin-left: 10vw;
+                color: white;
+                visibility: hidden;
+            }
+            #help-info {
+                font-family: vag_roundedregular;
+                height: 75vh;
+                width: 70vw;
+                margin-top: 5vh;
+                margin-left: 5vw;
+                overflow: auto;
+            }
+            #help-info > div {
+                margin-top: 1.5vh;
+                margin-bottom: 1.5vh;
+                margin-left: 5vw;
+            }
+            .command-holder, .example-holder {
+                display: flex;
+                flex-direction: row;
+            }
+            .example-holder {
+                margin-left: 5vw;
+                font-size: 2vmin;
+            }
+            #help-info > div > .command-holder > .command {
+                font-size: 5vmin;
+            }
+            #help-info > div > .command-holder > .explanation {
+                font-size: 3vmin;
+                margin-top: 2vmin;
+                margin-left: 5vw;
+            }
+            #help-info > div > .example-holder > .example {
+                margin-left: 2vw;
+                display: flex;
+                flex-direction: column;
+            }
+            #left-quotes-img {
+                width: 5vw;
+                position: absolute;
+                left: 2.5vw;
+                top: 7.5vh;
+                z-index: -1;
+            }
+            #right-quotes-img {
+                width: 5vw;
+                position: absolute;
+                right: 2.5vw;
+                bottom: 15vh;
+                z-index: -1;
+            }
+            ::-webkit-scrollbar {
+                display: none;
+            }
+            .main {
+                /* filter: blur(2px); */
+            }
+            .fade {
+                opacity: 0;
+            }
+            #reddit-sleep-info {
+                font-family: vag_roundedregular;
+                font-size: 3vmin;
+                font-color: black;
+                width: 25vw;
+                position: absolute;
+                top: 65vh;
+                left: 10vw;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="help-container">
+            <div id="help-info">
+            </div>
+            <div id="help-command">
+                Tell Reddit "thank you" to go back.
+            </div>
+        </div>
+        <div id="header" class="main fade">
+            <img id="hey-reddit-logo" src="hey_reddit_logo.png"/>
+        </div>
+        <div id="main-content" class="main">
+            <div id = "reddit-face">
+                <img id="reddit-face-img" src="reddit-sleeping/reddit_sleeping.gif"/>
+            </div>
+            <div id = "reddit-content" class = "fade">
+            </div>
+            <div id = "reddit-sleep-info">
+                shhhhh! Reddit is sleeping! If you want to talk to him, wake him up by saying "Hey Reddit"!
+            </div>
+        </div>
+        <div id="footer" class="main">
+            <div id="speech-result" class="fade">
+                I heard...
+                <img id="left-quotes-img" src="left_quotes.png"/>
+                <img id="right-quotes-img" src="right_quotes.png"/>
+                <div id="speech-result-text">
+                </div>
+            </div>
+            <div id="help-command" class = "fade">
+                Ask Reddit "What can you do?"to see what he is capable of.
+            </div>
+            <div id="connections"  class="fade">
+                <div id="cam-connected" class="connection">Camera Not Connected</div>
+                <div id="mic-connected" class="connection">Microphone Not Connected</div>
+                <div id="leap-connected" class="connection">Leap Motion Not Connected</div>
+            </div>
+        </div>
+        <div id="facecam" class="main">
+            <video autoplay="true" id="videoElement"></video>
+            <canvas id="myCanvas"></canvas>
+        </div>
+    </body>
+    <script src="face-api.js"></script>
+    <script src="snoowrap-v1.js"></script>
+    <script src="leap.min.js"></script>
+    <script src="leap-plugins.min.js"></script>
+    <script src="responseMatrix.js"></script>
+    <script>
+        var fadeOpacity = 0.0
+        let fadeElements = document.getElementsByClassName("fade")
+        function fadeIn() {
+            document.getElementById("reddit-sleep-info").style.visibility = "hidden"
+            let fadingIn = setInterval(() => {
+                fadeOpacity += .05
+                for (var i = 0; i < fadeElements.length; i++) {
+                    fadeElements[i].style.opacity = fadeOpacity;
+                }
+                if (fadeOpacity >= 1.0) clearInterval(fadingIn);
+            }, 50)
+        }
+
+        function fadeOut() {
+            let fadingOut = setInterval(() => {
+                fadeOpacity -= .05
+                for (var i = 0; i < fadeElements.length; i++) {
+                    fadeElements[i].style.opacity = fadeOpacity;
+                }
+                if (fadeOpacity <= 0.0) {
+                    clearInterval(fadingOut);
+                    document.getElementById("reddit-sleep-info").style.visibility = "visible"
+                }
+            }, 50)
+        }
+
+        function parseRedditURL(url) {
+            let index = url.search("/comments/")
+            if (index != -1) {
+                let submissionID = url.substr(index+"/comments/".length).split("/")[0];
+                return [submissionID, "post"];
+            } else {
+                let splitURL = url.split("/");
+                return [splitURL[splitURL.length-2], "subreddit"];
+            }
+        }
+
+        const ECSTATIC_IMAGE = "reddit_face_ecstatic.png";
+        const HAPPY_IMAGE = "reddit_face_happy.png";
+        const NEUTRAL_IMAGE = "reddit_face_neutral.png";
+        const SAD_IMAGE = "reddit_face_sad.png";
+        const ANGRY_IMAGE = "reddit_face_angry.png";
+        const FUNNY_IMAGE = "reddit_face_winking.png";
+        // const SLEEPY_IMAGE = "reddit_face_sleeping.png";
+        const SLEEPY_IMAGE = "reddit-sleeping/reddit_sleeping.gif";
+
+        var EMOTIONAL_RANGE = 4;
+        var EMOTION_DECAY_RATE = .005;
+        var EMOTION_CHANGE_RATE = .05;
+        var emotionIndex = EMOTIONAL_RANGE/2;
+        var emotion = Math.round(emotionIndex);
+
+        function valueLimit(val) {
+            return val < 0 ? 0 : (val > EMOTIONAL_RANGE ? EMOTIONAL_RANGE : val);
+        }
+
+        var awakened = false;
+
+        setInterval(() => {
+            if (!awakened) {
+                if (emotionIndex < 2) emotionIndex = valueLimit(emotionIndex + EMOTION_DECAY_RATE)
+                else emotionIndex = valueLimit(emotionIndex - EMOTION_DECAY_RATE)
+            }
+            let newEmotion = valueLimit(Math.round(emotionIndex));
+            if (emotion != newEmotion) {
+                console.log("getting new face")
+                emotion = newEmotion 
+                getFace();
+            }
+            console.log(emotion, emotionIndex)
+        }, 250);
+
+        function getEmotionFromFace(detectedExpressions) {
+            console.log("detecting something")
+            if (awakened) {
+                if (detectedExpressions.happy >= .5) emotionIndex = valueLimit(emotionIndex + EMOTION_CHANGE_RATE)
+                else emotionIndex = valueLimit(emotionIndex - .5*EMOTION_CHANGE_RATE);
+            }
+        }
+
+        const postive_words = [
+            "please",
+            "thank you",
+            "reddit",
+            "sorry",
+        ]
+        function getEmotionFromSpeech(speech) {
+            for (var i = 0; i < postive_words.length; i++) {
+                if (speech.search(postive_words[i]) != -1) emotionIndex = valueLimit(emotionIndex + 1);
+            }
+            if (speech.search("reddit") == -1) emotionIndex = valueLimit(emotionIndex - EMOTION_CHANGE_RATE);
+        }
+
+        function getFace() {
+            var face;
+            if (!awakened) face = SLEEPY_IMAGE;
+            else {
+                switch(emotion) {
+                    case 0: face = ANGRY_IMAGE; break;
+                    case 1: face = SAD_IMAGE; break;
+                    case 2: face = NEUTRAL_IMAGE; break;
+                    case 3: face = HAPPY_IMAGE; break;
+                    case 4: face = ECSTATIC_IMAGE; break;
+                }
+                console.log(emotion, face)
+            }
+            document.getElementById("reddit-face-img").src = face;
+        }
+
+        const r = new snoowrap({
+            userAgent: 'Mirror',
+            clientId: 'rIAba8e7i-I_rw',
+            clientSecret: 'NQAqKz-mVRNOcQWJF6rjsEPbP-0',
+            refreshToken: '129467261636-uyWJLGxT5F9w4NdLQxpPhamHVA4'
+        });
+
+        var redditContent = document.getElementById('reddit-content');
+        var currentSubreddit = "none";
+        var searchSort = "relevance";
+        var searchTime = "all";
+
+
+        var currentPost;
+        var currentCommunity;
+        var highlightedElement;
+
+        var currentPosts = [];
+        var currentPostIndex = -1;
+        var currentComments = [];
+        var currentSubreddits = [];
+        var currentSubredditIndex = -1;
+        var previousCommand;
+
+        const commands = [
+            {command: "show", explanation: "Reddit will show you a selection of posts", examples: ["\"Show me some popular posts\"", "\"Show me my saved posts\"", "\"Show me my favorite subreddits\""]},
+            {command: "find", explanation: "Reddit will find you new content", examples: ["\"Find me a subreddit I'd like\""]},
+            {command: "open", explanation: "Reddit will open the currently selected item", examples: ["\"Open this post\""]},
+            {command: "think", explanation: "Reddit will give you his thoughts on the current post", examples: ["\"What do you think about this post\""]},
+            {command: "read", explanation: "Reddit will read the item on the screen", examples: ["\"Read this post\""]},
+            {command: "next", explanation: "Reddit will show you the next available item", examples: ["\"Next post\""]},
+            {command: "previous", explanation: "Reddit will show you the previous item", examples: ["\"Previous post\""]},
+            {command: "up vote", explanation: "Reddit will up vote the current post", examples: ["\"Up vote this\""]},
+            {command: "down vote", explanation: "Reddit will down vote the current post", examples: ["\"Down vote this\""]},
+            {command: "save", explanation: "Reddit will save the current post", examples: ["\"Save this post\""]},
+            {command: "unsave", explanation: "Reddit will unsave the current post", examples: ["\"Unsave this post\""]},
+            {command: "undo", explanation: "Reddit will undo the previous action", examples: ["\"Can you undo that\""]},
+            {command: "who", explanation: "Reddit will answer your questions", examples: ["\"Who was the first guy to get to the center of a tootsie pop?\""]},
+            {command: "what", explanation: "Reddit will answer your questions", examples: ["\"What's in the center of a tootsie pop?\""]},
+            {command: "when", explanation: "Reddit will answer your questions", examples: ["\"When you get to the center of a tootsie pop, what would you do?\""]},
+            {command: "where", explanation: "Reddit will answer your questions", examples: ["\"Where were you when you first got to the center of a tootsie pop?\""]},
+            {command: "why", explanation: "Reddit will answer your questions", examples: ["\"Why? Why did you have to get to the center of the tootsie pop?\""]},
+            {command: "how", explanation: "Reddit will answer your questions", examples: ["\"How did you even get to the center of the tootsie pop?\""]},
+            {command: "if", explanation: "Reddit will answer your questions", examples: ["\"If you got to the center of a tootsie pop, would you tell me?\""]},
+            {command: "goodbye", explanation: "Reddit will leave you to be alone again", examples: ["\"Goodbye Reddit\""]},
+        ]
+        let helpInfo = document.getElementById("help-info");
+        helpInfo.innerHTML += `
+            <div id=\"help-intro\" style=\"width: 60vw; font-size: 2vmin;\" >
+                HeyReddit is a multimodal interface for the popular social media platform - Reddit, which features the HeyReddit virtual assistant.
+                You can use voice commands to interact with HeyReddit and have him show you content from the platform. To actually navigate the site,
+                you can use multiple different gestures. These gestures and commands are described below.
+            </div>
+            <div style=\"display: flex; flex-direction: row;\">
+                <div>
+                    <div style=\"font-size: 3vmin;\">Swipe Up/Down</div>
+                    <div>You can swipe up and down in order to scroll through the content on this site including this page</div>
+                </div>
+                <img style=\"height: 15vh;\" src="swiping_up_hand.png">
+            </div>
+            <div style=\"display: flex; flex-direction: row;\">
+                <div>
+                    <div style=\"font-size: 3vmin;\">Swipe Left/Right</div>
+                    <div>You can swipe up and down in order to scroll through the content on this site including this page</div>
+                </div>
+                <img style=\"height: 10vh;\" src="swiping_right_hand.png">
+            </div>
+            <div style=\"display: flex; flex-direction: row;\">
+                <div>
+                    <div style=\"font-size: 3vmin;\">Point</div>
+                    <div>You can swipe up and down in order to scroll through the content on this site including this page</div>
+                </div>
+                <img style=\"height: 10vh;\" src="pointing_hand.png">
+            </div>
+            <div style=\"display: flex; flex-direction: row;\">
+                <div>
+                    <div style=\"font-size: 3vmin;\">Stop</div>
+                    <div>You can swipe up and down in order to scroll through the content on this site including this page</div>
+                </div>
+                <img style=\"height: 10vh;\" src="stop_hand.png">
+            </div>
+        `
+        for (var i = 0; i < commands.length; i++) {
+            helpInfo.innerHTML += `
+                <div>
+                    <div class=\"command-holder\">
+                        <div class=\"command\">\"${commands[i].command}\"</div>
+                        <div class=\"explanation\">${commands[i].explanation}</div>
+                    </div>
+                    <div class=\"example-holder\">
+                        Examples:
+                        <div class=\"example\">${commands[i].examples.reduce((commandStr, example) => {return commandStr + `<div>${example}<div>`})}</div>
+                    </div>
+                </div>
+            `
+        }
+
+        function findWord(words, searchWords) {
+            var minIndex = words.length;
+            var foundWord = "none";
+            for (var i = 0; i < searchWords.length; i++) {
+                var n = words.search(searchWords[i]);
+                if (n != -1 && n < minIndex) {
+                    minIndex = n;
+                    foundWord = searchWords[i];
+                }
+            }
+            return [foundWord, minIndex];
+        }
+
+        function findCommand(speech) {
+            for (var index in commands) {
+                var n = speech.search(commands[index].command);
+                if (n != -1) return [commands[index].command, n]
+            }
+            return ["none", -1]
+        }
+
+        var currentlyShowing = 'feed';
+
+        function displayHelp() {
+            if (currentlyShowing == "feed") {
+                currentlyShowing = "help";
+                document.getElementById("help-container").style.visibility = "visible";
+                let mainElements = document.getElementsByClassName("main");
+                for (var i = 0; i < mainElements.length; i++) {
+                    mainElements[i].style.filter = "blur(2px)";
+                }
+            } else {
+                currentlyShowing = "feed";
+                document.getElementById("help-container").style.visibility = "hidden";
+                let mainElements = document.getElementsByClassName("main");
+                for (var i = 0; i < mainElements.length; i++) {
+                    mainElements[i].style.filter = "none";
+                }
+            }
+        }
+
+
+        var feedType = 'best';
+        function displayFeed(feed) {
+            currentlyShowing = 'feed';
+            currentPosts = feed;
+            var contentstr = "";
+            for (var i = 0; i < feed.length; i++) {
+                let post = feed[i];
+                contentstr += 
+                    `<div id=\"reddit-item\" class=\"${i}\">
+                        <div class=\"title\">${post.title}</div>
+                        <div class=\"info\">${post.subreddit_name_prefixed+"\nu/"+post.author.name}</div>
+                        <div id=\"reddit-item-overlay\"></div>
+                    </div>`
+            }
+            let content = 
+                `<div>
+                    <div id=\"reddit-header\">
+                    ${
+                        feedType == 'best' ?
+                        `<img style=\"height: 7.5vh;\" src=\"myfeed.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"popular_grey.png\"/>`
+                        :
+                        `<img style=\"height: 7.5vh;\" src=\"myfeed_grey.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"popular.png\"/>`
+                    }
+                    </div>
+                    <div id=\"reddit-feed\">
+                        ${contentstr}
+                    </div>
+                </div>`
+            redditContent.style.overflowY = "inherit";
+            redditContent.innerHTML = content;
+        }
+        r.getBest().then(displayFeed);
+
+        function switchFeed() {
+            if (feedType == 'best') {
+                feedType = 'popular';
+                r.getSubreddit('popular').getHot().then(displayFeed);
+            } else {
+                feedType = 'best';
+                r.getBest().then(displayFeed);
+            }
+        }
+
+        var subredditType = 'subreddit';
+        function displaySubreddit(subreddit) {
+            currentlyShowing = 'subreddit';
+            if (!post) post = currentPosts[currentPostIndex];
+            if (subredditType == 'subreddit') {
+                let contentstr = 
+                    `<div id=\"reddit-item\">
+                        <div class=\"title\">${subreddit.title}</div>
+                        <div class=\"info\">${subreddit.submit_text}</div>
+                    </div>`;
+                redditContent.innerHTML =
+                `<div>
+                    <div id=\"reddit-header\">
+                        <img style=\"height: 7.5vh;\" src=\"post.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"comments_grey.png\"/>
+                    </div>
+                    <div id=\"reddit-feed\">
+                        ${contentstr}
+                    </div>
+                </div>`
+            }
+            if (subredditType == 'post') {
+                var contentstr = "";
+                var subredditPosts;
+                subreddit.getHot({limit: 10}).then((posts) => {subredditPosts = posts});
+                for (var i = 0; i < subredditPosts.length; i++) {
+                    contentstr += 
+                        `<div id=\"reddit-item\" class=\"${i}\">
+                            <div class=\"title\">${post.title}</div>
+                            <div class=\"info\">${post.subreddit_name_prefixed+"\nu/"+post.author.name}</div>
+                            <div id=\"reddit-item-overlay\"></div>
+                        </div>`
+                }
+                redditContent.innerHTML =
+                `<div>
+                    <div id=\"reddit-header\">
+                        <img style=\"height: 7.5vh;\" src=\"post_grey.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"comments.png\"/>
+                    </div>
+                    <div id=\"reddit-feed\">
+                        ${contentstr}
+                    </div>
+                </div>`
+            }
+
+        }
+        
+        function switchSubreddit() {
+            if (subredditType == 'subreddit') subredditType = 'post';
+            else subredditType = 'subreddit';
+            displaySubreddit();
+        }
+
+        var postType = 'post';
+        function getPost(post) {
+            postType = 'post';
+            post.comments.fetchMore({amount: 25}).then((comments) => {
+                currentComments = comments;
+                displayPost(post)
+            })
+        }
+        function displayPost(post) {
+            currentlyShowing = 'post';
+            if (!post) post = currentPosts[currentPostIndex];
+            if (postType == 'post') {
+                redditContent.innerHTML =
+                `<div>
+                    <div id=\"reddit-header\">
+                        <img style=\"height: 7.5vh;\" src=\"post.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"comments_grey.png\"/>
+                    </div>
+                    <div id=\"reddit-feed\">
+                    </div>
+                </div>`
+                redditContent.innerHTML = `
+                <div>
+                    <div id=\"reddit-header\">
+                        <img style=\"height: 7.5vh;\" src=\"post.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"comments_grey.png\"/>
+                    </div>
+                    <div id=\"reddit-feed\">
+                        <div id=\"reddit-post\" style=\"color: white; background-color: black;\">
+                            <div class=\"title\">${post.title}</div>
+                            <div class=\"info\">${post.subreddit_name_prefixed}\nu/${post.author.name}</div>
+                            ${  !post.post_hint || post.post_hint == "self"
+                                ?
+                                `<div style=\"color: white;\">`+post.selftext+`</div></div>`
+                                :
+                                post.post_hint=="image"
+                                ? 
+                                "<img style=\"width: 35vw; margin-left: 2.5vw;\" src="+post.url+"></img>" 
+                                :
+                                post.post_hint == "self" 
+                                ? 
+                                `<div style=\"color: white;\">`+post.selftext+`</div></div>`
+                                :
+                                post.post_hint == "link" && post.url.endsWith(".gifv") || post.post_hint.endsWith("video")
+                                ?
+                                "<a href="+post.url+"><img src="+post.thumbnail+"></img></a>"
+                                :
+                                post.post_hint == "link" && post.url.endsWith(".gif")
+                                ?
+                                "<img style=\"width: 35vw; margin-left: 2.5vw;\" src="+post.url+"></img>"
+                                :
+                                ""
+                            }
+                        </div>
+                    </div>
+                </div>`;
+            }
+            if (postType == 'comments') {
+                let contentstr = "";
+                for (var i = 0; i < currentComments.length; i++) {
+                    contentstr += `<div id=\"reddit-item\" style=\"color: black;\">
+                        <div class=\"title\">${currentComments[i].body}</div>
+                        <div class=\"info\">${"u/"+currentComments[i].author.name}</div>
+                        <div id=\"reddit-item-overlay\"></div>
+                    </div>`
+                }
+                redditContent.innerHTML =
+                `<div>
+                    <div id=\"reddit-header\">
+                        <img style=\"height: 7.5vh;\" src=\"post_grey.png\"/>
+                        <img style=\"height: 7.5vh;\" src=\"comments.png\"/>
+                    </div>
+                    <div id=\"reddit-feed\">
+                        ${contentstr}
+                    </div>
+                </div>`
+            }
+        }
+
+        function switchPost() {
+            if (postType == 'post') postType = 'comments';
+            else postType = 'post';
+            displayPost();
+        }
+
+        const getPosts = (posts) => {
+            currentPosts = posts;
+            currentPostIndex = 0;
+            getPost(posts[0]);
+        }
+
+        const subreddits = {
+            "funny": [
+                "/r/funny",
+            ],
+            "cute": [
+                "/r/aww"
+            ],
+            "dramatic": [
+                "/r/AmITheAsshole",
+                "/r/JUSTNOMIL",
+            ],
+            "wholesome": [
+
+            ],
+            "scary": [
+                "/r/nosleep"
+            ]
+        }
+
+        const getSubredditFromCategory = (category) => {
+            var subreddits = [];
+            switch(category) {
+                case "interesting":
+                    subreddits = ["YouShouldKnow", "todayilearned", "AskReddit"]
+                    break;
+                case "awesome":
+                    subreddits = ["nextfuckinglevel", "NatureIsFuckingLit"]
+                case "funny": 
+                    subreddits = ["funny", "ShowerThoughts", "godtiersuperpowers"]
+                    break;
+                case "cute":
+                case "wholesome":
+                    subreddits = ["aww", "HumansBeingBros", "wholesomememes"]
+                    break;
+                case "dramatic":
+                    subreddits = ["AmITheAsshole", "JUSTNOMIL",]
+                    break;
+                case "creepy":
+                case "scary": 
+                    subreddits = ["nosleep", "letsnotmeet"]
+                    break;
+                default:
+                    return "none";
+            }
+            if (subreddits.length == 0) return "none";
+            return subreddits[Math.floor(Math.random() * subreddits.length)];
+
+        }
+        const getRandomFromSubreddit = (subreddit) => {
+            r.getTop(subreddit).then((posts) => {
+                currentPosts = posts;
+                currentPostIndex = Math.floor(Math.random()*posts.length);
+                console.log(subreddit, currentPosts, currentPostIndex);
+                getPost(currentPosts[currentPostIndex]);
+            });
+        }
+        const getRandom = () => {
+            let proxyurl = "https://cors-anywhere.herokuapp.com/";
+            let url = "https://www.reddit.com/random";
+            fetch(proxyurl+url).then((res) => {
+                res.text().then((resText) => {
+                    let match = /canonicalUrl/i
+                    var resultStr = "";
+                    for (var i = resText.match(match).index; i < resText.length; i++) {
+                        if (resText[i] == "}") break;
+                        resultStr += resText[i];
+                    }
+                    let commentStr = resultStr.substr(resultStr.match(/comments/i).index + "comments".length).substr(1);
+                    var commentID = "";
+                    for (var i = 0; i < commentStr.length; i++) {
+                        if (commentStr[i] == "/") break;
+                        commentID += commentStr[i];
+                    }
+                    r.getSubmission(commentID).fetch().then((post) => {
+                        currentPosts = [post]
+                        currentPostIndex = 0;
+                        getPost(post);
+                    });
+                })
+            })
+        }
+        const parseThink = (speech) => {
+            if (currentlyShowing == "post") {
+                let randomComment = currentComments[Math.floor(Math.random()*currentComments.length)];
+                generateSpeech(randomComment.body)
+            }
+        }
+        const parseNext = (speech) => {
+            currentPostIndex += 1;
+            if (currentPostIndex >= currentPostIndex.length) currentPostIndex = 0
+            getPost(currentPosts[currentPostIndex]);
+            generateSpeech(...getResponse("next", emotion));
+        } 
+        const parsePrevious = (speech) => {
+            currentPostIndex -= 1;
+            if (currentPostIndex <= -1) currentPostIndex = currentPosts.length - 1;
+            getPost(currentPosts[currentPostIndex])
+            generateSpeech(...getResponse("previous", emotion));
+        }
+        const parseFind = (speech) => {
+            var n, query, object;
+            let possibleObjects = ["post", "something", "subreddit", "community"];
+            for (var i = 0; i < possibleObjects.length; i++) {
+                if ((n = speech.search(possibleObjects[i])) != -1) object = possibleObjects[i]
+            }
+            if ((n = speech.search("about")) != -1) query = speech.substr(n + object.length)
+            else {
+                let end = speech.search(object)
+                let potentialBeginnings = ["find me a ", "find me ", "find "];
+                var beginning;
+                for (var i = 0; i < potentialBeginnings.length; i++) {
+                    beginning = speech.search(potentialBeginnings[i])
+                    if (beginning != -1) {
+                        beginning += potentialBeginnings[i].length;
+                        return;
+                    }
+                }
+                if (beginning == end) query = "random"
+                else query = speech.substr(beginning, end)
+            }
+            switch(object) {
+                case "something":
+                case "post":
+                    if (query == "random") getRandom()
+                    else if (query.search("like") != -1) r.getBest({limit: 10}).then(getPosts)
+                    else r.search({query: query, sort: 'relevance'}).then(getPosts);
+                    generateSpeech(...getResponse("show", emotion))
+                    break;
+                case "community":
+                case "subreddit":
+                    if (query == "random") getRandom()
+                    else if (query.search("like") != -1) r.getPopularSubreddits({limit: 10}).then(console.log)
+                    else searchGoogle("subreddits about " + query).then((urls) => {
+                            var subreddits = []
+                            var item, itemtype;
+                            for (var i = 0; i < urls.length; i++) {
+                                [item, itemType] = parseRedditURL(urls[i])
+                                if (itemType == "subreddit") r.getSubreddit(item).fetch().then((subreddit) => {subreddits.push(subreddit)})
+                            }
+                            console.log(subreddits);
+                        });
+                    generateSpeech(...getResponse("show", emotion))
+                    break;
+                default:
+                    startTranscription()
+                    break;
+            }
+        }  
+        const parseShow = (speech) => {
+            var n, query, subreddit;
+            if (speech.search("my feed") != -1) {
+                r.getBest({limit: 10}).then(getPosts);
+                generateSpeech(...getResponse("show", emotion));
+            } else if ((n = speech.search("something")) != -1) {
+                let categorySubreddit = getSubredditFromCategory(speech.substr(n+"something ".length).split(" ")[0])
+                if (categorySubreddit == "none") {
+                    if ((n = speech.search("from")) != -1) {
+                        subreddit = speech.substr(n+"from ".length).split(" ")[0];
+                        getRandomFromSubreddit(subreddit);
+                    }
+                    else getRandom();
+                }
+                else getRandomFromSubreddit(categorySubreddit); 
+                generateSpeech(...getResponse("show", emotion));
+            } else if ((n = speech.search("next")) != -1) {
+                parseNext();
+            } else if ((n = speech.search("previous")) != -1) {
+                parsePrevious();
+            } else if (speech.search("post") != -1) {
+                if (speech.search ("saved") != -1) r.getMe().getSavedContent().then(getPosts);
+                if ((n = speech.search(" from")) != -1) subreddit = speech.substr(n+" from ".length).replace(/ /g, "");
+                if ((n = speech.search("posts about")) != -1) {
+                    if (subreddit) query = speech.substr(n+"posts about ".length, speech.search(subreddit)-1);
+                    else query = speech.substr(n+"posts about".length);
+                }
+                if (speech.search("best post") != -1 || speech.search("good post") != -1) subreddit ? r.getHot(subreddit, {limit: 10}).then(getPosts) : r.getHot({limit: 10}).then(getPosts);
+                else if (speech.search("new post") != -1) subreddit ? r.getNew(subreddit, {limit: 10}).then(getPosts) : r.getNew({limit: 10}).then(getPosts);
+                else if ((n = speech.search("posts about")) != -1) {
+                    if (subreddit) {
+                        query = speech.substr(n+"posts about ".length, speech.search(subreddit)-1);
+                        r.search({query: query, subreddit: subreddit, sort: 'relevance'}).then(getPosts);
+                    } else {
+                        query = speech.substr(n+"posts about".length);
+                        r.search({query: query, sort: 'relevance'}).then(getPosts);
+                    }
+                } else r.getBest({limit: 10}).then(getPosts);
+                generateSpeech(...getResponse("show", emotion));
+            }
+            // generateSpeech(...getResponse("noshow", emotion));
+        }
+        const parseRead = (speech) => {
+            console.log(currentPosts[currentPostIndex])
+            if (currentPosts[currentPostIndex].selftext != "") generateSpeech(currentPosts[currentPostIndex].title, () => {generateSpeech(currentPosts[currentPostIndex].selftext)});
+            else generateSpeech(currentPosts[currentPostIndex].title);
+        }
+        const parseVote = (direction) => {
+            if (direction == "up") currentPosts[currentPostIndex].upvote();
+            else currentPosts[currentPostIndex].downvote();
+        }
+        const parseUndo = () => {
+            switch(previousCommand) {
+                case "up vote": 
+                case "down vote": 
+                    currentPosts[currentPostIndex].unvote()
+                    break;
+                case "next":
+                    parseNext();
+                    break;
+                case "previous":
+                case "go back":
+                    parsePrevious();
+                    break;
+                case "save":
+                    currentPosts[currentPostIndex].unsave()
+                    break;
+                case "unsave":
+                    currentPosts[currentPostIndex].save()
+                    break;
+            }
+        }
+
+        async function doGoogleSearch(query, start) {
+            let response = await fetch(`https://www.googleapis.com/customsearch/v1?key=AIzaSyArv2LYI_KvvMsxXR_-ryU1lOkTH_iuDCs&q=${query}&cx=017423290649137388288:2kdksqa4bgp&start=${start}`);
+            if (response.status == 200) {
+                let data = await response.json()
+                return data.items.map(item => item.link)
+            }
+            return []
+        }
+
+        async function searchGoogle(query, numItems = 10) {
+            let numSearches = Math.ceil(numItems/10)
+            var urls = []
+            for (var i = 0; i < numSearches; i++) {
+                let start = i*10+1;
+                urls = urls.concat(await doGoogleSearch(query, start));
+            }
+            return urls;
+        }
+
+        function parseRedditURL(url) {
+            let index = url.search("/comments/")
+            if (index != -1) {
+                let submissionID = url.substr(index+"/comments/".length).split("/")[0];
+                return [submissionID, "post"];
+            } else {
+                let subredditName = url.substr(url.search("/r/")+3).split("/")[0]
+                return [subredditName, "subreddit"];
+            }
+        }
+
+        const parseQuestion = (speech) => {
+            var n, query;
+            generateSpeech("Let me look that up for you");
+            if ((n = speech.search("who") == -1)) query = speech.substr(n)
+            if ((n = speech.search("what") == -1)) query = speech.substr(n)
+            if ((n = speech.search("when") == -1)) query = speech.substr(n)
+            if ((n = speech.search("where") == -1)) query = speech.substr(n)
+            if ((n = speech.search("why") == -1)) query = speech.substr(n)
+            searchGoogle(query).then((urls) => {
+                var [posts, subreddits ]= [[],[]]
+                for (var i = 0; i < urls.length; i++) {
+                    var item, itemtype;
+                    [item, itemType] = parseRedditURL(urls[i])
+                    if (itemType == "post") posts.push(r.getSubmission(item))
+                    else if (itemType == "subreddit") subreddits.push(item)
+                }
+                r.getContentByIds(posts).then(displayFeed);
+            });
+        }
+
+        var timeTillSleep = 10000;
+        const checkAwake = setInterval(() => {
+            if (awakened && !redditSpeaking && !currentlyShowing == "help") {
+                timeTillSleep -= 1000;
+                if (timeTillSleep <= 0) goToSleep();
+            }
+        }, 1000)
+        var rudeAwakened = false;
+        function wakeUp(source) {
+            awakened = true;
+            timeTillSleep = 20000;
+            getFace();
+            if (source == "loud") {
+                rudeAwakened = true;
+                generateSpeech(...getResponse("loud", emotion));
+            } else {
+                generateSpeech(...getResponse("awaken", emotion));
+                fadeIn();
+            }
+        }
+        function goToSleep(source) {
+            console.log("going to sleep")
+            awakened = false;
+            rudeAwakened = false;
+            if (source == "goodbye") generateSpeech(...getResponse("goodbye", emotion));
+            if (source == "timesup") generateSpeech(...getResponse("timesup", emotion));
+            startTranscription();
+            getFace();
+            fadeOut();
+        }
+        function parseSpeech(speech) {
+            try {
+                console.log(speech);
+                if (!awakened && (speech.search("reddit") != -1 || speech.search("read it") != -1)) {
+                    awakened = true;
+                    wakeUp();
+                    return ;
+                }
+                else if (speech.search("what can you do") != -1) {
+                    displayHelp();
+                    generateSpeech("Here's what I can do");
+                    return ;
+                }
+                else if (currentlyShowing == "help" && speech.search("thank you") != -1) {
+                    displayHelp();
+                    generateSpeech("You're welcome");
+                    return ;
+                }
+                else if (emotion == 0) {
+                    generateSpeech(...getResponse("no", emotion));
+                }
+                else if (awakened && !rudeAwakened) {
+                    timeTillSleep = 20000;
+                    getEmotionFromSpeech(speech);
+                    var command, commandIndex;
+                    [command, commandIndex] = findCommand(speech);
+                    if (command != "none") previousCommand = command;
+                    switch(command) {
+                        case "none":
+                            console.log("Starting transcription from none")
+                            setTimeout(startTranscription, 500);
+                            break;
+                        case "show": 
+                            parseShow(speech);
+                            break;
+                        case "find":
+                            parseFind(speech);
+                            break;
+                        case "think":
+                            parseThink(speech);
+                            break;
+                        case "read": 
+                            parseRead(speech);
+                            break;
+                        case "next":
+                            parseNext(speech);
+                            break;
+                        case "previous": 
+                            parsePrevious(speech);
+                            break;
+                        case "up vote": 
+                            currentPosts[currentPostIndex].upvote()
+                            break;
+                        case "down vote":
+                            currentPosts[currentPostIndex].downvote()
+                            break;
+                        case "save":
+                            currentPosts[currentPostIndex].save()
+                            break;
+                        case "unsave":
+                            currentPosts[currentPostIndex].unsave()
+                            break;
+                        case "undo":
+                            parseUndo(); 
+                            break;
+                        case "if":
+                        case "how":
+                        case "who":
+                        case "what":
+                        case "when": 
+                        case "where": 
+                        case "why":
+                            parseQuestion(speech);
+                            break;
+                        case "open": 
+                            currentPostIndex = parseInt(highlightedElement.parentNode.className);
+                            postType = 'post';
+                            getPost(currentPosts[currentPostIndex]);
+                            generateSpeech(...getResponse("open", emotion));
+                            break;
+                        case "goodbye": 
+                            goToSleep();
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    parsing = false;
+                    console.log("starting transcription from nothing in parseSpeech"); 
+                    setTimeout(startTranscription, 500);
+                }
+            } catch (err) {
+                console.log(err);
+                parsing = false;
+                console.log("starting transcription from error in parseSpeech"); 
+                setTimeout(startTranscription, 500);
+            }
+        }
+
+        const randomEventInterval = setInterval(() => {
+
+        }, 5000)
+
+        var VOICEINDEX = 51;
+        // var VOICEINDEX = 0;
+        var redditVoice;
+        var voicesReady = false;
+        window.speechSynthesis.onvoiceschanged = function() {
+            voicesReady = true;
+            redditVoice =  window.speechSynthesis.getVoices()[VOICEINDEX];
+        };
+        window.speechSynthesis.cancel();
+
+        var parsing = false;
+        var speechToMock;
+        var redditSpeaking = false;
+        setInterval(() => {
+            if (redditSpeaking) speechSynthesis.resume();
+        }, 1000);
+        function createUtterance(message) {
+            let utterance = new SpeechSynthesisUtterance();
+            utterance.voice = redditVoice;
+            utterance.pitch = 1;
+            utterance.rate = 1;
+            utterance.text = message;
+            return utterance;
+        }
+
+        function generateSpeech(message, callback) {
+            if (voicesReady) {
+                parsing = false;
+                redditSpeaking = true;
+                var chunks = message.split("\n");
+                if (chunks.length > 1) {
+                    generateLongSpeech(chunks, callback); 
+                    return ;
+                }
+                var msg = new SpeechSynthesisUtterance();
+                msg.voice = redditVoice;
+                msg.rate = 1;
+                msg.pitch = 1;
+                if (emotion < 2) {
+                    if (awakened && !rudeAwakened && speechToMock) {
+                        let nextMessage = message;
+                        var nextCallback;
+                        if (callback) nextCallback = callback;
+                        else nextCallback = () => {redditSpeaking = false; console.log("starting transcription from generateSpeech"); startTranscription();};
+                        message = speechToMock;
+                        msg.pitch = 1.4;
+                        msg.rate = .6;
+                        callback = () => {
+                            generateSpeech(nextMessage, nextCallback)
+                        }
+                        speechToMock = undefined;
+                    }
+                }
+                msg.text = message;
+                console.log(msg)
+                if (callback) msg.onend = callback
+                else msg.onend = () => {redditSpeaking = false; console.log("starting transcription from generateSpeech"); startTranscription();};
+                // speechSynthesis.cancel()
+                setTimeout(() => {window.speechSynthesis.speak(msg)},100);
+            }
+        };
+
+        function foo(tempMsg) {
+            console.log(tempMsg);
+            if (redditSpeechCanceled) {
+                redditSpeaking = false;
+                startTranscription();
+            } else {
+                setTimeout(() => {
+                    speechSynthesis.speak(tempMsg)
+                }, 100);
+            }
+        }
+
+        var redditSpeechCanceled = false;
+        function generateLongSpeech(messageChunks, callback) {
+            var nextMsg;
+            var utterances = [];
+            for (var i = messageChunks.length-1; i >= 0; i--) {
+                if (messageChunks[i] != "" && messageChunks[i] != " ") {
+                    let msg = createUtterance(messageChunks[i]);
+                    if (nextMsg) {
+                        if (callback) msg.onend = callback;
+                        else {
+                            let tempMsg = nextMsg;
+                            msg.onend = () => {
+                                foo(tempMsg)
+                            };
+                        }
+                    } else msg.onend = () => {
+                            redditSpeaking = false; 
+                            console.log("starting transcription from generateLongSpeech"); 
+                            startTranscription();
+                        };
+                    nextMsg = msg;
+                }
+            }
+            setTimeout(() => {window.speechSynthesis.speak(nextMsg)},100);
+        }
+
+        const MODEL_URL = '/models';
+        const detectFaces = async () => {
+            let faceDetectorOptions = new faceapi.TinyFaceDetectorOptions();
+            const input = document.getElementById('videoElement')
+            let detectedFace = await faceapi.detectSingleFace(input, faceDetectorOptions).withFaceExpressions();
+            if (detectedFace != undefined) {
+                timeTillSleep += 100;
+                getEmotionFromFace(detectedFace.expressions)
+            }
+            setTimeout(() => detectFaces(), 100)
+        }
+
+        const startFaceDetection = async () => {
+            // await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
+            await faceapi.loadFaceLandmarkModel(MODEL_URL);
+            // await faceapi.loadFaceRecognitionModel(MODEL_URL);
+            await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
+            await faceapi.loadFaceExpressionModel(MODEL_URL);
+            detectFaces();
+        }
+
+        if (navigator.mediaDevices.getUserMedia) {
+            //Get Camera 
+            var video = document.querySelector("#videoElement");
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    document.getElementById("cam-connected").innerHTML = "Camera Connected";
+                document.getElementById("cam-connected").style.borderColor = "black";
+                    video.srcObject = stream;
+                    setTimeout(()=>startFaceDetection(), 2000);
+                })
+                .catch(function (err) {
+                    console.log(err)
+                });
+            
+            //Get Microphone
+            var loudnessCheck = 0;
+            navigator.mediaDevices.getUserMedia({ audio: true})
+            .then(function(stream) {
+                document.getElementById("mic-connected").innerHTML = "Microphone Connected";
+                document.getElementById("mic-connected").style.borderColor = "black";
+                audioContext = new AudioContext();
+                analyser = audioContext.createAnalyser();
+                microphone = audioContext.createMediaStreamSource(stream);
+                javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 1024;
+                microphone.connect(analyser);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioContext.destination);
+                javascriptNode.onaudioprocess = function() {
+                    if (!awakened) {
+                        var array = new Uint8Array(analyser.frequencyBinCount);
+                        analyser.getByteFrequencyData(array);
+                        var values = 0;
+                        var length = array.length;
+                        for (var i = 0; i < length; i++) {
+                            values += (array[i]);
+                        }
+                        let volume = Math.round(values / length);
+                        if (volume >= 100) loudnessCheck += 1;
+                        else loudnessCheck = 0;
+                        if (loudnessCheck == 3) {
+                            emotionIndex = valueLimit(emotionIndex - 2*EMOTION_CHANGE_RATE)
+                            stopTranscription()
+                            wakeUp("loud")
+                            loudnessCheck = 0;
+                        }
+                    }
+                }
+            })
+            .catch(function(err) {
+                console.log(err)
+            });
+        }
+
+        const result = document.getElementById("speech-result-text");
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (typeof SpeechRecognition === "undefined") {
+            const message = document.getElementById("message");
+            message.removeAttribute("hidden");
+            message.setAttribute("aria-hidden", "false");
+        }
+
+        //SETUP SPEECH RECOGNITION
+        var currentSpeech = "";
+        var recognizing = false;
+        var listening = false;
+        const recognition = new SpeechRecognition();
+        function startTranscription() {
+            try {
+                setTimeout(() => {result.innerHTML = "<p>*cricket noise*<span style=\"font-size: 15px;\">(this is awkward.)</span></p>"}, 1000);
+                listening = true;
+                recognition.start();
+                EMOTION_DECAY_RATE = .005;
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        function stopTranscription() {
+            recognition.stop();
+            listening = false;
+        }
+        function onResult(event) {
+            if (event.results[0].isFinal) {
+                redditSpeechCanceled = false;
+                parsing = true;
+                stopTranscription()
+                recognizedSpeech = event.results[0][0].transcript.toLowerCase();
+                if (recognizedSpeech.charAt(0) == " ") recognizedSpeech = recognizedSpeech.substr(1)
+                if (awakened) speechToMock = recognizedSpeech;
+                parseSpeech(recognizedSpeech);
+                // resultText = "\"" + recognizedSpeech + "\"";
+                result.innerHTML = `<p>${recognizedSpeech}</p>`
+            }
+        }
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.addEventListener("result", onResult);
+        recognition.onspeechstart = () => {recognizing = true; EMOTION_DECAY_RATE = .001;}
+        recognition.onspeechend = () => {recognizing = false;}
+        recognition.onstart = () => {console.log("Speech recognition started")}
+        recognition.onend = () => {console.log("Speech recognition ended"); console.log(parsing, redditSpeaking); if (!parsing && !redditSpeaking) {console.log("starting transcription from here"); startTranscription();}}
+        startTranscription()
+
+
+        const doHand = hand => {
+            if (redditSpeaking && hand.grabStrength == 0 && hand.pinchStrength == 0
+                && hand.palmNormal[0] >= -.25 && hand.palmNormal[0] <= .25
+                && hand.palmNormal[1] >= -.75 && hand.palmNormal[0] <= .25) {
+                redditSpeaking = false;
+                redditSpeachCanceled = true;
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        var LEAPSCALE = .6;
+        var leapConnected = false;
+        var timeSinceSwipe = new Date().getTime();
+        var scrollAmount = 0
+        Leap.loop({enableGestures: true}, function(frame) {
+            if (!leapConnected) {
+                leapConnected = true;
+                document.getElementById("leap-connected").innerHTML = "Leap Motion Connected";
+                document.getElementById("leap-connected").style.borderColor = "black";
+            }
+            try {
+                var redditFeed = document.getElementById("reddit-feed");
+                var index = frame.pointables[1];
+                var middle = frame.pointables[2];
+                // if (middle && middle.finger && middle.extended &&
+                //     !(frame.pointables[2].extended || frame.pointables[3].extended || frame.pointables[4].extended)) {
+                //         console.log("Flipping off")
+                // }
+                if (index && index.finger && index.extended &&
+                    !(frame.pointables[2].extended || frame.pointables[3].extended || frame.pointables[4].extended)) {
+                    let box = redditFeed.getBoundingClientRect()
+                    let x = box.left + redditFeed.clientWidth/2
+                    let y = box.top + redditFeed.clientHeight - Math.min(Math.max(10,3*(index.tipPosition[1])), redditFeed.clientHeight - 10);
+                    if (highlightedElement) {
+                        highlightedElement.parentNode.style.borderColor = "#fc4c07";
+                    }
+                    highlightedElement = document.elementFromPoint(x,y);
+                    if (highlightedElement.id == "reddit-item-overlay") {
+                        highlightedElement.parentNode.style.borderColor = "black";
+                    } 
+                } else {
+                    if (highlightedElement) {
+                        highlightedElement.parentNode.style.borderColor = "#fc4c07";
+                        highlightedElement = undefined;
+                    }
+                    if (frame.valid && frame.gestures.length > 0) {
+                        frame.gestures.forEach(function(gesture) {
+                            if (gesture.type == "swipe" && new Date().getTime() - timeSinceSwipe >= 1000) {
+                                console.log("SWIPING")
+                                var direction, speed;
+                                speed = gesture.speed;
+                                if (Math.abs(gesture.direction[0]) > Math.abs(gesture.direction[1])) direction = "horizontal";
+                                else direction = "vertical";
+                                if (direction == "horizontal") {
+                                    if (currentlyShowing == "feed") switchFeed();
+                                    if (currentlyShowing == "post") switchPost();
+                                    if (currentlyShowing == "subreddit") switchSubreddit();
+                                } else {
+                                    if (currentlyShowing == "help") {
+                                        redditHelp = document.getElementById("help-info");
+                                        if (gesture.direction[1] > 0) scrollAmount = Math.min(redditHelp.scrollHeight, scrollAmount+.9*redditHelp.clientHeight);
+                                        if (gesture.direction[1] < 0) scrollAmount = Math.max(0, scrollAmount-.9*redditHelp.clientHeight);
+                                        redditHelp.scroll({
+                                            top: scrollAmount,
+                                            behavior: 'smooth'
+                                        });
+                                    }
+                                    if (currentlyShowing == "feed" || currentlyShowing == "post" || currentlyShowing == "subreddit") {
+                                        redditFeed = document.getElementById("reddit-feed");
+                                        if (gesture.direction[1] > 0) scrollAmount = Math.min(redditFeed.scrollHeight, scrollAmount+.9*redditFeed.clientHeight);
+                                        if (gesture.direction[1] < 0) scrollAmount = Math.max(0, scrollAmount-.9*redditContent.clientHeight);
+                                        redditFeed.scroll({
+                                            top: scrollAmount,
+                                            behavior: 'smooth'
+                                        });
+                                    }
+                                }
+                                timeSinceSwipe = new Date().getTime();
+                            }
+                        })
+                    }
+                    for (index in frame.hands) doHand(frame.hands[index]);
+                }
+            } catch (error) {console.log(error)}
+        }).use('screenPosition', {scale: LEAPSCALE});
+
+
+        const redirectToGoogle = () => {window.location.href = `http://www.google.com.pk/search?btnG=1&pws=0&q=${query}`}
+        const responseMatrix = {
+            "awaken": [
+                [["Oh... so now you wanna talk to me."]],
+                [["What?"]],
+                [["Hey."]],
+                [["What can I do for you?"]],
+                [["Hi there! How's it going? What can I do for you?"]],
+            ],
+            "loud": [
+                [["Okay you know what! Don't bother me for a while!", goToSleep]],
+                [["You're way too loud.", goToSleep], ["Can't you see I'm trying to sleep?", goToSleep], ["Can you please please please shut up?", goToSleep]],
+                [["Can you keep it down?", goToSleep]],
+                [["Could you keep it down a little bit?", goToSleep]],
+                [["Hey, I'm pretty tired so do you mind being a little quieter?", goToSleep]],
+            ],
+            "goodbye": [
+                [["Thank god, I can finally get some sleep!"]],
+                [["Sigh. Thank god ..."]],
+                [["Bye."]],
+                [["See you later!"]],
+                [["I'll miss you!! oowoo"]],
+            ],
+            "none": [
+                [["No asshole I can't do that."]],
+                [["Nope not gonna do that for you bucko."]],
+                [["I can't do that."]],
+                [["I don't know how to do that unfortunately."]],
+                [["I'm sorry, but I don't think I can do that!"]],
+            ],
+            "unknown": [
+                [["Can you please. SHUT! THE! beep. UP!"]],
+                [["If you're not talking to me, could you keep it down please?"]],
+                [["Are you talking to me?"]],
+                [["I think I heard something. Were you talking to me?"]],
+                [["Haha I hope it's me that you're talking to."]],
+            ],
+            "hello": [
+                [["Oh go beep off."]],
+                [["What do you want?"]],
+                [["Did you want something?"]],
+                [["Hey! Is there something I can do for you?"]],
+                [["What's up dude! I've missed you. Let me know if there's anything I can do for you!"]],
+            ],
+            "next": [
+                [["You annoy me."]],
+                [["Next."]],
+                [["Here's the next one."]],
+                [["Next one coming right up!"]],
+                [["Next one coming right up!"]],
+            ],
+            "previous": [
+                [["You annoy me."]],
+                [["Previous."]],
+                [["Here's the previous one."]],
+                [["Previous one coming right up!"]],
+                [["Let me go back one for ya!"]],
+            ],
+            "show": [
+                [["How about you show yourself out ... of my life."]],
+                [["Okay."]],
+                [["Yeah give me a second."]],
+                [["Okay, here you go!"]],
+                [["Of course! Hope you like it!"]],
+            ],
+            "open": [
+                [["Hmm."]],
+                [["Okay."]],
+                [["Alright, opening it up."]],
+                [["Okay, here you go!"]],
+                [["Of course! Hope you like it!"]],
+            ],
+            "search": [
+                [["Who do you think I am? ... Google Assistant?"], ["Might as well start saying Ok Google when you talk to me."], ["You know what, why don't you just google it? ... Here, I'll help you.", redirectToGoogle]],
+                [["Okay."]],
+                [["Well, let me see."]],
+                [["I'll check on that for you."]],
+                [["Ooh! Good question!"]],
+            ],
+            "no": [
+                [["NO", "I DON'T THINK SO.", "DO IT YOURSELF."]],
+                [["NO"]],
+                [["NO"]],
+                [["NO"]],
+                [["NO"]],
+            ]
+        }
+
+
+        function getResponse(command, emotion) {
+            return responseMatrix[command][emotion][Math.round(Math.random()*(responseMatrix[command][emotion].length-1))];
+        }
+    </script>
+</html>

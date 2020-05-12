@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                overflow: hidden;
+                background-color: white;
+                color: black;
+            }
+            #facecam {
+                display: none;
+            }
+            #header {
+                height: 15vh;
+                width: 100vw;
+                padding-top: 2vh;
+                padding-left: 2.5vw;
+                padding-right: 2.5vw;
+                line-height: 10px;
+                position: absolute;
+            }
+            #myCanvas {
+                height: 100vh;
+                position: absolute;
+            }
+            #videoElement {
+                width: 30vw;
+                position: absolute;
+                left: 35vw;
+                top: 35vh;
+            }
+            #reddit-face {
+                position: absolute;
+                top: 15vh;
+                left: 0px;
+                width: 50vw;
+                height: 70vh;
+                border-radius: 50%;
+                overflow: hidden;
+            }
+            #hey-reddit-logo {
+                height: 15vh;
+            }
+            #reddit-face-img {
+                width: 35vw;
+                margin: 5vw;
+            }
+            #reddit-content {
+                position: absolute;
+                top: 15vh;
+                right: 0px;
+                height: 70vh;
+                width: 50vw;
+                overflow-y: auto;
+                white-space: pre-wrap;
+            }
+            #reddit-post {
+                margin-bottom: 1vw;
+            }
+            #reddit-item {
+                margin-bottom: .5vw;
+                border: 4px solid #fc4c07;
+            }
+            #reddit-item, #reddit-post {
+                border-radius: 20px;
+                width: 40vw;
+                position: relative;
+                padding: 2vw;
+            }
+            #reddit-item > .title {
+                font-size: 2vmin;
+            }
+            #reddit-item > .info {
+                margin-top: .5vw;
+                font-size: 1.5vmin;
+            }
+            #reddit-post > .title {
+                color: white;
+                font-size: 3vmin;
+            }
+            #reddit-post > .info {
+                color: white;
+                margin-top: .5vw;
+                font-size: 2vmin;
+            }
+            #reddit-item > .image {
+                width: "35vw";
+                margin-left: "2.5vw";
+            }
+            #speech-result {
+                position: absolute;
+                bottom: 50px;
+                left: 20vw;
+                width: 60vw;
+                text-align: center;
+            }
+            #leap-connected {
+                position: absolute;
+                text-align: center;
+                display: none;
+                width: 100px;
+                height: 35px;
+                bottom: 25px;
+                left: 25px;
+                border-radius: 10px; 
+                border: 2px solid black;
+                font-size: 15px;
+                
+            }
+            ::-webkit-scrollbar {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <img id="hey-reddit-logo" src="hey_reddit_logo.png"/>
+        </div>
+        <div id="main-content">
+            <div id = "reddit-face">
+                <img id="reddit-face-img" src="reddit_face_happy.png"/>
+            </div>
+            <div id = "reddit-content">
+            </div>
+        </div>
+        <div id="footer">
+            <div id="speech-result">
+            </div>
+            <div id="leap-connected">Leap Motion Connected</div>
+        </div>
+        <div id="facecam">
+            <video autoplay="true" id="videoElement"></video>
+            <canvas id="myCanvas"></canvas>
+        </div>
+    </body>
+    <script src="face-api.js"></script>
+    <!-- <script src="require.js"></script> -->
+    <script src="snoowrap-v1.js"></script>
+    <script src="leap.min.js"></script>
+    <script src="leap-plugins.min.js"></script>
+    <!-- <script src="three.js"></script>
+    <script src="THREE.MeshLine.js"></script> -->
+    <script src="responseMatrix.js"></script>
+    <script>
+        // var scene = new THREE.Scene();
+        // var redditFace = document.getElementById("reddit-face");
+        // var camera = new THREE.PerspectiveCamera( 75, redditFace.clientWidth/redditFace.clientHeight, 0.1, 1000 );
+
+        // var renderer = new THREE.WebGLRenderer();
+        // renderer.setSize( redditFace.clientWidth, redditFace.clientHeight );
+        // redditFace.appendChild( renderer.domElement );
+        // renderer.d
+        // renderer.setClearColor( 0xfc4c07, 1 );
+
+        // var ellipse = new THREE.EllipseCurve(
+        //     0, 0,            // ax, aY
+        //     2.75, 2,           // xRadius, yRadius
+        //     0,  2 * Math.PI,  // aStartAngle, aEndAngle
+        //     false,            // aClockwise
+        //     0                 // aRotation
+        // );
+        // let points = ellipse.getPoints(99);
+        // points.push(points[0])
+        // console.log(points)
+        // var shape = new THREE.Shape(points);
+        // var extrudeSettings = {
+        //     depth: .25,
+        //     bevelEnabled: false,
+        // };
+
+        // const addEdges = (shape) => {
+        //     // var edgeGeometry = new THREE.EdgesGeometry( shape.geometry ); // or WireframeGeometry
+        //     // var edgeMaterial = new THREE.LineBasicMaterial( { color: 0x000000, linewidth: 10 } );
+        //     // var edges = new THREE.LineSegments( edgeGeometry, edgeMaterial );
+        //     // shape.add( edges );
+        // }
+
+        // var geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+        // var material = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+        // var cylinder = new THREE.Mesh( geometry, material );
+        // cylinder.position.set( 0, -1, -1);
+        // cylinder.geometry.colorsNeedUpdate = true;
+        // console.log(cylinder)
+        // scene.add(cylinder);
+        // var directionalLight = new THREE.DirectionalLight( 0xffffff, 1);
+        // directionalLight.position.set(0,0,1);
+        // var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+        // scene.add( directionalLight );
+        // addEdges(cylinder);
+
+        // camera.position.z = 5;
+        // let redditBox = redditFace.getBoundingClientRect();
+        // let redditFacePosition = {x: redditBox.x + redditBox.width/2, y: redditBox.y + redditBox.height/2}
+        // var userFacePosition = {x: .5*window.innerWidth, y: .5*window.innerHeight}
+
+        // var cubegeometry = new THREE.BoxGeometry( .5, 2.5, .25 );
+        // var cubegeometry2 = new THREE.BoxGeometry( .5, 1.72, .25);
+        // var cubematerial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        // var cube = new THREE.Mesh( cubegeometry, cubematerial );
+        // var cube2 = new THREE.Mesh( cubegeometry2, cubematerial );
+        // cube.position.set(0.25,1.5,-1);
+        // cube.rotation.set(0,0,-Math.PI/8);
+        // cube2.position.set(1.25,2.3,-1);
+        // cube2.rotation.set(0,0,-5*Math.PI/8);
+        // scene.add( cube );
+        // scene.add( cube2 );
+        // addEdges(cube);
+
+        // var circlegeometry = new THREE.CylinderGeometry( .1, .5, .25, 32 );
+        // var circlematerial = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        // var circle = new THREE.Mesh( circlegeometry, circlematerial );
+        // circle.position.set(1.75, 1.7, 0);
+        // circle.rotation.set(Math.PI/2,0,0)
+        // scene.add( circle );
+
+        // var eyeGeometry1 = new THREE.CylinderGeometry( .1, .45, .25, 32 );
+        // var eyeMaterial1 = new THREE.MeshBasicMaterial( {color: 0xfc4c07} );
+        // var eye1 = new THREE.Mesh( eyeGeometry1, eyeMaterial1 );
+        // eye1.position.set(1, -.25, 0);
+        // eye1.rotation.set(Math.PI/2,0,0)
+        // scene.add( eye1 );
+
+        // var eyeGeometry2 = new THREE.CylinderGeometry( .1, .45, .25, 32 );
+        // var eyeMaterial2 = new THREE.MeshBasicMaterial( {color: 0xfc4c07} );
+        // var eye2 = new THREE.Mesh( eyeGeometry2, eyeMaterial2 );
+        // eye2.position.set(-1, -.25, 0);
+        // eye2.rotation.set(Math.PI/2,0,0)
+        // scene.add( eye2 );
+
+        // var earGeometry1 = new THREE.CylinderGeometry( .1, .6, .25, 32 );
+        // var earMaterial1 = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        // var ear1 = new THREE.Mesh( earGeometry1, earMaterial1 );
+        // ear1.position.set(2.15, -.15, 0);
+        // ear1.rotation.set(Math.PI/2,0,0)
+        // scene.add( ear1 );
+
+        // var earGeometry2 = new THREE.CylinderGeometry( .1, .6, .25, 32 );
+        // var earMaterial2 = new THREE.MeshBasicMaterial( {color: 0xffffff} );
+        // var ear2 = new THREE.Mesh( earGeometry2, earMaterial2 );
+        // ear2.position.set(-2.15, -.15, 0);
+        // ear2.rotation.set(Math.PI/2,0,0)
+        // scene.add( ear2 );
+
+        // // Smile
+        // var smileGeometry = new THREE.Geometry();
+        // for( var j = -Math.PI/10; j > -9*Math.PI/10; j -= 2 * Math.PI / 100 ) {
+        //     var v = new THREE.Vector3( 1.25*Math.cos( j ), Math.sin( j ) - 1, 0 );
+        //     smileGeometry.vertices.push( v );
+        // }
+        // var smile = new MeshLine();
+        // smile.setGeometry( smileGeometry );
+        // var smileMaterial = new MeshLineMaterial({color: 0xfc4c07, lineWidth: .2});
+        // // scene.add( new THREE.Mesh( smile.geometry, smileMaterial ) );
+
+        // // Neutral mouth
+        // var neutralGeometry = new THREE.Geometry();
+        // neutralGeometry.vertices.push( new THREE.Vector3( -1.25, -1.5, 0 ) );
+        // neutralGeometry.vertices.push( new THREE.Vector3( 1.25, -1.5, 0 ) );
+        // var neutral = new MeshLine();
+        // neutral.setGeometry( neutralGeometry );
+        // var neutralMaterial = new MeshLineMaterial({color: 0xfc4c07, lineWidth: .2});
+        // scene.add( new THREE.Mesh( neutral.geometry, neutralMaterial ) );
+
+        // // Frown
+        // var frownGeometry = new THREE.Geometry();
+        // for( var j = -11*Math.PI/10; j > -19*Math.PI/10; j -= 2 * Math.PI / 100 ) {
+        //     var v = new THREE.Vector3( 1.25*Math.cos( j ), Math.sin( j )-2, 0 );
+        //     frownGeometry.vertices.push( v );
+        // }
+        // var frown = new MeshLine();
+        // frown.setGeometry( frownGeometry );
+        // var frownMaterial = new MeshLineMaterial({color: 0xfc4c07, lineWidth: .2});
+        // // scene.add( new THREE.Mesh( frown.geometry, frownMaterial ) );
+
+        // var animate = function () {
+        //     requestAnimationFrame( animate );
+        //     var newDir = new THREE.Vector3(userFacePosition.x-redditFacePosition.x, userFacePosition.y-redditFacePosition.y, 500);
+        //     var pos = new THREE.Vector3();
+        //     pos.addVectors(newDir, cylinder.position);
+        //     cylinder.lookAt(pos);
+        //     // cylinder.rotation.x += 0.01;
+        //     // cylinder.rotation.y += 0.01;
+        //     // cylinder.rotation.z += 0.01;
+
+        //     renderer.render( scene, camera );
+        // };
+        // // animate();
+        // renderer.render( scene, camera );
+
+        async function doGoogleSearch(query, start) {
+            let response = await fetch(`https://www.googleapis.com/customsearch/v1?key=AIzaSyArv2LYI_KvvMsxXR_-ryU1lOkTH_iuDCs&q=${query}&cx=017423290649137388288:2kdksqa4bgp&start=${start}`);
+            if (response.status == 200) {
+                let data = await response.json()
+                return data.items.map(item => item.link)
+            }
+            return []
+        }
+
+        async function searchGoogle(query, numItems = 10) {
+            let numSearches = Math.ceil(numItems/10)
+            var urls = []
+            for (var i = 0; i < numSearches; i++) {
+                let start = i*10+1;
+                urls = urls.concat(await doGoogleSearch(query, start));
+            }
+            return urls;
+        }
+
+        function parseRedditURL(url) {
+            let index = url.search("/comments/")
+            if (index != -1) {
+                let submissionID = url.substr(index+"/comments/".length).split("/")[0];
+                return [submissionID, "post"];
+            } else {
+                let splitURL = url.split("/");
+                return [splitURL[splitURL.length-2], "subreddit"];
+            }
+        }
+
+        var emotionIndex = 0
+        // var emotion = "neutral"
+        var emotion = 0
+        var EMOTION_DECAY_RATE = .005
+        var EMOTION_CHANGE_RATE = .2
+        function getEmotion(detectedExpressions) {
+            if (detectedExpressions.happy >= .2) emotionIndex += EMOTION_CHANGE_RATE
+            else if (detectedExpressions.angry >= .2 || detectedExpressions.sad >= .2) emotionIndex -= EMOTION_CHANGE_RATE
+            else emotionIndex += -1*emotionIndex*EMOTION_DECAY_RATE
+            if (emotionIndex > 1) emotionIndex = 1
+            if (emotionIndex < -1) emotionIndex = -1
+            if (emotionIndex > .3) emotion = "happy"
+            else if (emotionIndex < -.3) emotion = "unhappy"
+            else emotion = "neutral"
+        }
+
+        const r = new snoowrap({
+            userAgent: 'Mirror',
+            clientId: 'rIAba8e7i-I_rw',
+            clientSecret: 'NQAqKz-mVRNOcQWJF6rjsEPbP-0',
+            refreshToken: '129467261636-uyWJLGxT5F9w4NdLQxpPhamHVA4'
+        });
+
+        var redditContent = document.getElementById('reddit-content');
+        var currentSubreddit = "none";
+        var searchSort = "relevance";
+        var searchTime = "all";
+        
+
+        const redditContentColors = [
+            "#EF233C",
+            "#F9C22E",
+            // "#4E9F3A",
+            // "#863EB1",
+            // "#EE7421",
+            "#3185FC",
+            "#FFFFFF"
+        ]
+
+        var currentPost;
+        var currentCommunity;
+        var highlightedElement;
+
+        // function openRedditPost(postID) {
+        //     redditContent.innerHTML = "";
+        //     currentPost = postID
+        //     r.getSubmission(postID).fetch().then((item) => {
+        //         console.log(item)
+        //         if (item.url) console.log("there is a picture")
+        //         redditContent.innerHTML = `<div id=\"reddit-post\" style=\"color: white; background-color: black;\"><div class=\"title\">${item.title}</div><div class=\"info\">${item.subreddit_name_prefixed}\nu/${item.author.name}</div>${item.post_hint=="image" ? "<img style=\"width: 35vw; margin-left: 2.5vw;\" src="+item.url+"></img>" : ""}${item.post_hint == "self" ? `<div style=\"color: white;\">`+item.selftext+`</div></div>`: ""}`;
+        //         item.comments.fetchAll().then(displayRedditComments)
+        //     });
+        // }
+
+        // function displayRedditPosts(posts) {
+        //     redditContent.innerHTML = ""
+        //     posts.map((item, index) => {
+        //         console.log(item);
+        //         redditContent.innerHTML +=
+        //             `<div id=\"reddit-item\" style=\"color: black; background-color:${redditContentColors[index%redditContentColors.length]};\"><div id="reddit-item-overlay" class=${item.id} style=\"position: absolute; top: 0px; left: 0px; height: 100%; width: 100%;\"></div><div class=\"title\">${item.title}</div><div class=\"info\">${item.subreddit_name_prefixed}\n${"u/"+item.author.name}</div></div>`
+        //     });
+        // }
+
+
+        // function displayRedditSubreddits(communities) {
+            
+        // }
+
+        // function doSearch(searchOptions) {
+        //     console.log("searching with the following options ", searchOptions)
+        //     redditContent.innerHTML = ""
+        //     r.search(searchOptions)
+        //     .map((item, index) => {
+        //         redditContent.innerHTML +=
+        //             `<div id=\"reddit-item\" style=\"border-color:${redditContentColors[index%redditContentColors.length]};\"><div class=\"title\">${item.title}</div><div class=\"info\">${item.subreddit_name_prefixed}\n${"u/"+item.author.name}</div></div>`
+        //     });
+        // }
+
+        // const commands = [
+        //     "show",
+        //     "look",
+        //     "go back",
+        //     "next",
+        //     "read",
+        //     "create",
+        //     "help",
+        //     "reddit",
+        //     "open",
+        // ];
+
+        const commands = [
+            "show",
+            "read",
+            "next",
+            "previous",
+        ]
+
+        // const objects = [
+        //     "feed",
+        //     "favorite subreddits",
+        //     "what's hot",
+        //     "popular",
+        // ]
+
+        function findWord(words, searchWords) {
+            var minIndex = words.length;
+            var foundWord = "none";
+            for (var i = 0; i < searchWords.length; i++) {
+                var n = words.search(searchWords[i]);
+                if (n != -1 && n < minIndex) {
+                    minIndex = n;
+                    foundWord = searchWords[i];
+                }
+            }
+            return [foundWord, minIndex];
+        }
+
+        function findCommand(speech) {
+            for (var index in commands) {
+                var n = speech.search(commands[index]);
+                if (n != -1) return [commands[index], n]
+            }
+            return ["none", -1]
+        }
+
+        var currentPosts = [];
+        var currentPostIndex = -1;
+
+        function displayRedditComments(comments) {
+            comments.map((item, index) => {
+                console.log(item);
+                redditContent.innerHTML +=
+                    `<div id=\"reddit-item\" style=\"color: black;\"><div class=${item.id} style=\"position: absolute; top: 0px; left: 0px; height: 100%; width: 100%;\"></div><div class=\"title\">${item.body}</div><div class=\"info\">${"u/"+item.author.name}</div></div>`
+            });
+        }
+
+        const displayPost = () => {
+            let post = currentPosts[currentPostIndex];
+            console.log(post);
+            redditContent.innerHTML = `
+                <div id=\"reddit-post\" style=\"color: white; background-color: black;\">
+                    <div class=\"title\">${post.title}</div>
+                    <div class=\"info\">${post.subreddit_name_prefixed}\nu/${post.author.name}</div>
+                    ${  !post.post_hint || post.post_hint == "self"
+                        ?
+                        `<div style=\"color: white;\">`+post.selftext+`</div></div>`
+                        :
+                        post.post_hint=="image"
+                        ? 
+                        "<img style=\"width: 35vw; margin-left: 2.5vw;\" src="+post.url+"></img>" 
+                        :
+                        post.post_hint == "self" 
+                        ? 
+                        `<div style=\"color: white;\">`+post.selftext+`</div></div>`
+                        :
+                        post.post_hint == "link" && post.url.endsWith(".gifv") || post.post_hint.endsWith("video")
+                        ?
+                        "<a href="+post.url+"><img src="+post.thumbnail+"></img></a>"
+                        :
+                        post.post_hint == "link" && post.url.endsWith(".gif")
+                        ?
+                        "<img style=\"width: 35vw; margin-left: 2.5vw;\" src="+post.url+"></img>"
+                        :
+                        ""
+                    }`;
+            post.comments.fetchMore({amount: 50}).then(displayRedditComments)
+        }
+        const getPosts = (posts) => {
+            currentPosts = posts;
+            currentPostIndex = 0;
+            displayPost();
+        }
+
+        const parseNone = (speech) => {
+            var words = speech.split(" ");
+            if (words.length == 2) {
+                generateSpeech(getResponse("hello", emotion))
+            } else generateSpeech(getResponse("none", emotion))
+        }
+        const parseNext = (speech) => {
+            currentPostIndex += 1;
+            generateSpeech(getResponse("next", emotion));
+            displayPost();
+        }
+        const parsePrevious = (speech) => {
+            currentPostIndex -= 1;
+            generateSpeech(getResponse("previous", emotion));
+            displayPost();
+        }  
+        const parseShow = (speech) => {
+            // 'show me posts about ____', 'show me _____ posts', 'show me best posts', 'show me posts from'
+            var n, query, subreddit;
+            
+            if ((n = speech.search("next")) != -1) {
+                parseNext();
+            } else if ((n = speech.search("previous")) != -1) {
+                parsePrevious();
+            } else if ((n = speech.search("post")) != -1) {
+                if ((n = speech.search(" from")) != -1)subreddit = speech.substr(n+" from ".length).replace(/ /g, "");
+                if ((n = speech.search("posts about")) != -1) {
+                    if (subreddit) query = speech.substr(n+"posts about ".length, speech.search(subreddit)-1);
+                    else query = speech.substr(n+"posts about".length);
+                }
+                if ((n = speech.search("best post")) != -1) subreddit ? r.getHot(subreddit, {limit: 10}).then(getPosts) : r.getHot({limit: 10}).then(getPosts);
+                else if ((n = speech.search("new post")) != -1) subreddit ? r.getNew(subreddit, {limit: 10}).then(getPosts) : r.getNew({limit: 10}).then(getPosts);
+                else if ((n = speech.search("posts about")) != -1) {
+                    if (subreddit) {
+                        query = speech.substr(n+"posts about ".length, speech.search(subreddit)-1);
+                        r.search({query: query, subreddit: subreddit, sort: 'relevance'}).then(getPosts);
+                    } else {
+                        query = speech.substr(n+"posts about".length);
+                        r.search({query: query, sort: 'relevance'}).then(getPosts);
+                    }
+                } else r.getBest({limit: 10}).then(getPosts);
+                generateSpeech(getResponse("show", emotion));
+            }
+        }
+        const parseRead = (speech) => {
+            if (currentPosts[currentPostIndex].post_hint == "self") generateSpeech(currentPosts[currentPostIndex].title, () => {generateSpeech(currentPosts[currentPostIndex].title)});
+            generateSpeech(currentPosts[currentPostIndex].title);
+        }
+
+        function parseSpeech(speech) {
+            var words = speech.split(" ");
+            if (words.length >= 2 && words[0] == "hey" && words[1] == "reddit") {
+                var command, commandIndex;
+                [command, commandIndex] = findCommand(words.splice(2).join(" "));
+                console.log(command, commandIndex)
+                switch(command) {
+                    case "none":
+                        parseNone(speech);
+                        break;
+                    case "show": 
+                        parseShow(speech);
+                        break;
+                    case "read": 
+                        parseRead(speech);
+                        break;
+                    case "next":
+                        parseNext(speech);
+                        break;
+                    case "previous": 
+                        parsePrevious(speech);
+                        break;
+                    default:
+                        break;
+                }
+            } else generateSpeech(getResponse("unknown", emotion));
+
+
+
+            // var command, commandIndex;
+            // [command, commandIndex] = findWord(speech, commands);
+            // console.log(command, commandIndex)
+            // if (command != "none") speech = speech.substr(commandIndex + command.length)
+            // switch (command) {
+            //     case "reddit":
+            //         searchGoogle(speech, 30).then((urls) => {
+            //             var [posts, subreddits ]= [[],[]]
+            //             for (var i = 0; i < urls.length; i++) {
+            //                 var item, itemtype;
+            //                 [item, itemType] = parseRedditURL(urls[i])
+            //                 if (itemType == "post") posts.push(r.getSubmission(item))
+            //                 else if (itemType == "subreddit") subreddits.push(item)
+            //             }
+            //             console.log(posts, subreddits)
+            //             r.getContentByIds(posts).then(displayRedditPosts);
+            //         });
+            //         break;
+            //     case "show":
+            //         var object, objectIndex = findWord(speech, objects)
+            //         console.log(object, objectIndex)
+            //         currentPost = undefined;
+            //         switch (object) {
+            //             case "feed":
+            //                 r.getBest().then(displayRedditPosts)
+            //                 break;
+            //             case "upvotes":
+            //                 r.getMe().getUpvotedContent().then(console.log)
+            //                 break;
+            //             case "downvotes": 
+            //                 r.getMe().getDownvotedContent().then(console.log)
+            //                 break;
+            //             case "subreddits":
+            //                 r.getSubscriptions().map(item => console.log(item.title))
+            //                 break;
+            //             case "saved posts":
+            //                 r.getMe().getSavedContent().then(console.log)
+            //                 break;
+            //             case "whats hot":
+            //                 r.getHot().map(item => console.log(item.title))
+            //                 break;
+            //             case "popular":
+            //                 r.getBest().map(item => console.log)
+            //         }
+            //         break;
+            //     case "look": 
+            //         break;
+            //     case "go back":
+            //         currentPost = undefined;
+            //         r.getBest().then(displayRedditComments)
+            //         generateSpeech("Here you go!");
+            //         break;
+            //     case "upvote":
+            //         if (highlightedElement) {
+            //             if (location == "FEED") upvote(highlightedElement, "post");
+            //             else upvote(highlightedElement, "comment");
+            //         } else {
+            //             var object, objectIndex = findWord(speech, objects)
+            //             if (object == "post" && currentPost) upvote(currentPost, "post");
+            //             else generateSpeech("upvote what?") 
+            //         }
+            //     case "open":
+            //         if (highlightedElement) {
+            //             generateSpeech("Here you go!")
+            //             openRedditPost(highlightedElement.className)
+            //         } else generateSpeech("Open what?")
+            //         break;
+            //     case "read":
+            //         if (highlightedElement) r.getSubmission(highlightedElement.className).fetch().then((item) => {generateSpeech(item.author.name + " wrote " + item.body)})
+            //         else if (currentPost) r.getSubmission(currentPost).fetch().then((item) => {
+            //             console.log(item);
+            //             if (item.post_hint) {
+            //                 if (item.post_hint == "image") generateSpeech("This is a post of a picture.");
+            //                 else if (item.post_hint == "link") generateSpeech("This is a post of a link.");
+            //                 else generateSpeech(item.author.name + " wrote " + item.selfText);
+            //             } else generateSpeech(item.author.name + " wrote " + item.title);
+            //         });
+            //         else generateSpeech("There's nothing here for me to read");
+            //         break;
+            //     case "none":
+            //         generateSpeech(getResponse("none", emotion));
+            //         // var searchOptions = {"query": speech, "sort": searchSort, "time": searchTime};
+            //         // if (currentSubreddit != "none") searchOptions['subreddit'] = currentSubreddit;
+            //         // doSearch(searchOptions);
+            //         break;
+            //     default: break;
+            // }
+        }
+
+        var VOICEINDEX = 49;
+        var voicesReady = false;
+        window.speechSynthesis.onvoiceschanged = function() {
+            voicesReady = true;
+            // Uncomment to see a list of voices
+            // console.log("Choose a voice:\n" + window.speechSynthesis.getVoices().map(function(v,i) { return i + ": " + v.lang; }).join("\n"));
+        };
+
+        function generateSpeech(message, callback) {
+            console.log("generating")
+            if (voicesReady) {
+                console.log("speaking")
+                var msg = new SpeechSynthesisUtterance();
+                msg.voice = window.speechSynthesis.getVoices()[VOICEINDEX];
+                msg.text = message;
+                msg.rate = 1;
+                if (callback) msg.onend = callback
+                else msg.onend = startTranscription;
+                speechSynthesis.speak(msg);
+                console.log("spoke");
+            } else console.log("voices not ready");
+        };
+
+        var canvas = document.getElementById("myCanvas");
+        var context = canvas.getContext('2d');
+
+        const MODEL_URL = '/models';
+
+        // TODO: Add Tiny Face Model
+        const detectFaces = async () => {
+            let faceDetectorOptions = new faceapi.TinyFaceDetectorOptions();
+            const input = document.getElementById('videoElement')
+            let videox = .3*window.innerWidth;
+            let videoy = .75*.3*window.innerWidth;
+            let detectedFace = await faceapi.detectSingleFace(input, faceDetectorOptions).withFaceExpressions();
+            if (detectedFace != undefined) {
+                // userFacePosition = {x: window.innerWidth*(1-detectedFace.detection.box.x/videox), 
+                //     y: window.innerHeight*detectedFace.detection.box.y/videoy};
+                getEmotion(detectedFace.expressions)
+            }
+            setTimeout(() => detectFaces(), 100)
+        }
+
+        const startFaceDetection = async () => {
+            // await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
+            console.log("starting face detection");
+            await faceapi.loadFaceLandmarkModel(MODEL_URL);
+            // await faceapi.loadFaceRecognitionModel(MODEL_URL);
+            await faceapi.loadTinyFaceDetectorModel(MODEL_URL);
+            await faceapi.loadFaceExpressionModel(MODEL_URL);
+            detectFaces();
+        }
+
+
+        var video = document.querySelector("#videoElement");
+        if (navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(function (stream) {
+                video.srcObject = stream;
+                setTimeout(()=>startFaceDetection(), 2000);
+            })
+            .catch(function (err0r) {
+            console.log("Something went wrong!");
+            });
+        }
+
+        const result = document.getElementById("speech-result");
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+        if (typeof SpeechRecognition === "undefined") {
+            const message = document.getElementById("message");
+            message.removeAttribute("hidden");
+            message.setAttribute("aria-hidden", "false");
+        }
+
+        //SETUP SPEECH RECOGNITION
+        var currentSpeech = "";
+        var readyToParse = false;
+
+        var listening = false;
+        const recognition = new SpeechRecognition();
+        function startTranscription() {
+            result.innerHTML = ""
+            listening = true;
+            recognition.start();
+            setTimeout(restartTranscription, 10000);
+            console.log("starting recognition");
+        }
+        function stopTranscription() {
+            recognition.stop();
+            listening = false;
+            console.log("stopping recognition")
+        }
+        function restartTranscription() {
+            if (!readyToParse) {
+                stopTranscription();
+                startTranscription();
+            }
+        }
+        function onResult(event) {
+            if (event.results[0].isFinal) {
+                readyToParse = true;
+                stopTranscription()
+                resultText = "\"";
+                console.log(event.resultIndex)
+                recognizedSpeech = event.results[0][0].transcript;
+                if (recognizedSpeech.charAt(0) == " ") recognizedSpeech = recognizedSpeech.substr(1)
+                resultText += recognizedSpeech;
+                parseSpeech(recognizedSpeech.toLowerCase())
+                console.log(recognizedSpeech)
+                resultText += "\""
+                const text = document.createTextNode(resultText);
+                const p = document.createElement("p");
+                p.appendChild(text);
+                console.log(result)
+                result.appendChild(p)
+                console.log(result)
+            }
+        }
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.addEventListener("result", onResult);
+        startTranscription()
+
+        // var listeningTimer = 0
+        // const doHand = hand => {
+        //     // console.log(hand.palmNormal, hand.direction)
+        //     if (!listening && hand.grabStrength >= .9) {
+        //         if (listeningTimer == 0) listeningTimer = new Date().getTime()
+        //         else if (new Date().getTime() - listeningTimer >= 500) {
+        //             listening = true
+        //             startTranscription();
+        //             result.innerHTML = "<p>\"\"</p>";
+        //         }
+        //     }
+        //     else if (hand.grabStrength < .8) {
+        //         listeningTimer = 0
+        //         if (listening) {
+        //             stopTranscription();
+        //             listening = false;
+        //         }
+        //         if (readyToParse && currentSpeech != "") {
+        //             parseSpeech(currentSpeech);
+        //             currentSpeech == "";
+        //             readyToParse = false;
+        //             result.innerHTML = "";
+        //         }
+        //     }
+        // }
+
+        // var LEAPSCALE = .6;
+        // var connected = false;
+        // var timeSinceSwipe = new Date().getTime();
+        // var scrollAmount = 0
+        // var oldBackgroundColor;
+        // Leap.loop({enableGestures: true}, function(frame) {
+        //     if (!connected) {
+        //         connected = true;
+        //         document.getElementById("leap-connected").style.display = "block";
+        //     }
+        //     try {
+        //         var index = frame.pointables[1]
+        //         if (index && index.finger && index.extended &&
+        //             !(frame.pointables[2].extended || frame.pointables[3].extended || frame.pointables[4].extended)) {
+        //             // console.log(frame.hands[0])
+        //             let box = redditContent.getBoundingClientRect()
+        //             let x = box.left + redditContent.clientWidth/2
+        //             let y = box.top + redditContent.clientHeight - Math.min(Math.max(10,3*(index.tipPosition[1])), redditContent.clientHeight - 10);
+        //             if (highlightedElement) {
+        //                 highlightedElement.parentNode.style.backgroundColor = oldBackgroundColor;
+        //                 highlightedElement.parentNode.style.color = "black";
+        //             }
+        //             highlightedElement = document.elementFromPoint(x,y);
+        //             oldBackgroundColor = highlightedElement.parentNode.style.backgroundColor;
+        //             highlightedElement.parentNode.style.backgroundColor = "black";
+        //             highlightedElement.parentNode.style.color = "white";
+        //             // console.log("x: ", x, " y: ", y, "  ", highlightedElement.className)
+        //             // if (index.touchDistance < -.5) {
+        //             //     console.log("Screen Tap")
+        //             //     openRedditPost(highlightedElement.className);
+        //             // }
+        //         } else {
+        //             if (highlightedElement) {
+        //                 highlightedElement.parentNode.style.backgroundColor = oldBackgroundColor;
+        //                 highlightedElement.parentNode.style.color = "black";
+        //             }
+        //             if(frame.valid && frame.gestures.length > 0){
+        //                 frame.gestures.forEach(function(gesture){
+        //                     switch (gesture.type){
+        //                     case "swipe":
+        //                         if (gesture.state == "start" && new Date().getTime() - timeSinceSwipe >= 500) {
+        //                             if (gesture.direction[1] > .75) {
+        //                                 scrollAmount = Math.min(redditContent.scrollHeight, scrollAmount+.9*redditContent.clientHeight);
+        //                                 redditContent.scroll({
+        //                                     top: scrollAmount,
+        //                                     behavior: 'smooth'
+        //                                 });
+        //                                 // console.log(gesture.speed, "Up Swipe");
+        //                             } else if (gesture.direction[1] < -.75) {
+        //                                 scrollAmount = Math.max(0, scrollAmount-.9*redditContent.clientHeight);
+        //                                 redditContent.scroll({
+        //                                     top: scrollAmount,
+        //                                     behavior: 'smooth'
+        //                                 });
+        //                                 // console.log(gesture.speed, "Down Swipe");
+        //                             } else {
+        //                                 // console.log(gesture.speed, "Side Swipe");
+        //                             }
+        //                             console.log(gesture);
+        //                             timeSinceSwipe = new Date().getTime();
+        //                         }
+        //                         break;
+        //                     }
+        //                 });
+        //             }
+        //         }
+        //         // if (frame.hands.length == 0 && listening) stopTranscription();
+        //         // for (index in frame.hands) doHand(frame.hands[index]);
+        //     } catch (error) {console.log(error)}
+        // }).use('screenPosition', {scale: LEAPSCALE});
+    </script>
+</html>
